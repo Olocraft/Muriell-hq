@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      width: 300px;
+      height: 400px;
+      background: #0A0A0A;
+      color: white;
+      font-family: 'Space Grotesk', sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #EF216A;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .logo { width: 30px; }
+    .title { font-weight: 900; text-transform: uppercase; letter-spacing: 2px; font-size: 14px; }
+    .status-card {
+      background: rgba(239, 33, 106, 0.1);
+      border: 1px solid rgba(239, 33, 106, 0.3);
+      padding: 20px;
+      border-radius: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .mood { color: #EF216A; font-weight: 900; text-transform: uppercase; font-size: 10px; margin-bottom: 5px; }
+    .quote { font-style: italic; font-size: 14px; line-height: 1.4; color: #ffcae0; }
+    .stats { display: grid; grid-cols: 2; gap: 10px; }
+    .stat-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; text-align: center; }
+    .stat-val { font-weight: 900; font-size: 18px; }
+    .stat-label { font-size: 8px; text-transform: uppercase; color: #666; }
+    .btn {
+      margin-top: auto;
+      background: #EF216A;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="../logo.png" class="logo" />
+    <span class="title">Muriell Watcher</span>
+  </div>
+  <div class="status-card">
+    <div class="mood">Current Mood: Annoyed</div>
+    <div class="quote">"I see that YouTube tab. Don't make me report you to your accountability partner."</div>
+  </div>
+  <div class="stats" style="display: flex; gap: 10px;">
+    <div class="stat-box" style="flex: 1;">
+      <div class="stat-val" id="prod-time">0m</div>
+      <div class="stat-label">Productive</div>
+    </div>
+    <div class="stat-box" style="flex: 1;">
+      <div class="stat-val" id="waste-time">0m</div>
+      <div class="stat-label">Wasted</div>
+    </div>
+  </div>
+  <button class="btn" id="open-app">Open Command Center</button>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "MURIELL - AI Discipline Engine",
+  "description": "A gameified AI-powered accountability, productivity, and study companion that enforces discipline through aggressive loops and sarcastic encouragement.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "display-capture"
+  ]
+}
