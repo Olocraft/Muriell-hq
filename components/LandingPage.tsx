@@ -136,7 +136,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ initialUser }) => {
     } catch (err: any) {
       const errorCode = err.code || "";
       const errorMessage = err.message || "";
-      if (errorCode === 'auth/email-already-in-use' || errorMessage.includes('email-already-in-use')) {
+      if (errorCode === 'auth/popup-blocked') {
+        setError("Popup blocked. Please allow popups for this site.");
+      } else if (errorCode === 'auth/email-already-in-use' || errorMessage.includes('email-already-in-use')) {
         setError("User already exists. Please sign in");
       } else {
         setError(errorMessage.replace("Firebase: ", "").replace("Error (", "").replace(").", ""));
@@ -235,7 +237,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ initialUser }) => {
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
 
-        <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-2">
+        <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-2 text-white">
           {isLogin ? 'Welcome Back' : 'Get Started'}
         </h2>
         <p className="text-gray-500 text-sm mb-8">
@@ -339,7 +341,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ initialUser }) => {
       <nav className="relative z-50 max-w-7xl mx-auto px-6 py-8 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <Logo className="w-10 h-10" />
-          <span className="font-black italic uppercase tracking-tighter text-2xl">Muriell</span>
+          <span className="font-black italic uppercase tracking-tighter text-2xl text-white">Muriell</span>
         </div>
         <div className="flex gap-6 md:gap-10 text-[10px] font-black uppercase tracking-[0.4em] text-gray-500">
           <a href="#rituals" className="hover:text-white transition-colors">Pricing</a>
@@ -354,7 +356,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ initialUser }) => {
           <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] text-pink-50">FOCUS ASSISTANT</span>
         </div>
 
-        <h1 className="text-5xl sm:text-7xl md:text-9xl lg:text-[11rem] font-black italic uppercase tracking-tighter leading-[0.8] mb-12 animate-in fade-in slide-in-from-bottom-12 duration-1000 select-none">
+        <h1 className="text-5xl sm:text-7xl md:text-9xl lg:text-[11rem] font-black italic uppercase tracking-tighter leading-[0.8] mb-12 animate-in fade-in slide-in-from-bottom-12 duration-1000 select-none text-white">
           WORK OR <br className="hidden sm:block"/>
           <span className="animate-shimmer text-transparent bg-clip-text bg-gradient-to-r from-[#EF216A] via-purple-500 to-amber-400 drop-shadow-[0_0_30px_rgba(239,33,106,0.3)]">
             GET ROASTED.
@@ -362,7 +364,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ initialUser }) => {
         </h1>
         
         <p className="max-w-3xl text-lg md:text-3xl text-gray-400 font-medium leading-tight mb-20 animate-in fade-in slide-in-from-bottom-16 duration-1000 px-4">
-          Muriell watches your screen. If you waste time, it <span className="text-white font-black underline decoration-[#EF216A] decoration-[4px] md:decoration-[8px] underline-offset-4 md:underline-offset-8">insults you</span>. Work hard, and you win.
+          Muriell is your AI student partner. It watches your screen, tracks your study goals, and if you waste time, it <span className="text-white font-black underline decoration-[#EF216A] decoration-[4px] md:decoration-[8px] underline-offset-4 md:underline-offset-8">insults you</span>. Work hard, and you win.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-6 md:gap-8 animate-in fade-in slide-in-from-bottom-20 duration-1000 w-full sm:w-auto px-6">
@@ -424,7 +426,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ initialUser }) => {
 
       <div id="rituals" className="relative z-10 max-w-7xl mx-auto px-6 pb-48 md:pb-64">
         <div className="text-center mb-16 md:mb-24">
-          <h2 className="text-4xl md:text-7xl font-black italic uppercase tracking-tighter mb-4">PICK A PLAN</h2>
+          <h2 className="text-4xl md:text-7xl font-black italic uppercase tracking-tighter mb-4 text-white">PICK A PLAN</h2>
           <p className="text-gray-500 font-black uppercase tracking-[0.4em] text-[10px]">Stop wasting your time.</p>
         </div>
 
@@ -440,7 +442,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ initialUser }) => {
           
           <PricingCard 
             title="Pro"
-            price="9"
+            price="3"
             description="AI voice chat and study help."
             features={['Real-Time AI Voice', 'Study Bot & Quizzes', 'Work Reports', 'Priority Help']}
             highlighted={true}
@@ -450,7 +452,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ initialUser }) => {
 
           <PricingCard 
             title="Elite"
-            price="19"
+            price="9"
             description="Phone alerts and money bets."
             features={['SMS Alerts', 'Bet Money on Goals', 'All Devices', 'Custom Plans']}
             buttonText="Go Elite"
@@ -492,10 +494,10 @@ const PricingCard: React.FC<{
       )}
       <div className="flex items-center gap-4 mb-4">
         {highlighted ? <Crown className="w-8 h-8 text-amber-500" /> : <Ghost className="w-8 h-8 text-gray-700" />}
-        <h3 className="text-3xl font-black italic uppercase tracking-tighter">{title}</h3>
+        <h3 className="text-3xl font-black italic uppercase tracking-tighter text-white">{title}</h3>
       </div>
       <div className="flex items-baseline gap-2 mb-8">
-        <span className="text-6xl font-black italic tracking-tighter">${price}</span>
+        <span className="text-6xl font-black italic tracking-tighter text-white">${price}</span>
         <span className="text-gray-500 font-bold uppercase text-[9px] tracking-widest">/mo</span>
       </div>
       <p className="text-gray-400 text-sm font-medium mb-12 leading-relaxed italic h-12">{description}</p>

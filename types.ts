@@ -6,7 +6,15 @@ export interface UserStats {
   rageMeter: number; // 0 to 100
   shamePoints: number;
   disciplineScore: number;
+  consistencyScore: number; // 0 to 100
+  performanceAudit?: string;
+  roastIntensity: 'Mild' | 'Standard' | 'Aggressive';
+  photoURL?: string;
+  readingHistory?: { title: string, timestamp: string }[];
+  consistencyHistory?: { date: string, score: number }[];
 }
+
+export type Difficulty = 'Easy' | 'Medium' | 'Hard';
 
 export interface Task {
   id: string;
@@ -15,9 +23,10 @@ export interface Task {
   type: 'focus' | 'habit' | 'discipline';
   status: 'pending' | 'completed' | 'overdue' | 'missed';
   stakeAmount?: number;
-  // Fixed: Updated to string to support ISO format used in persistence and Gemini calls
-  deadline: string;
+  deadline: string; // ISO string with date and time
   outcome: string;
+  alarmTriggered?: boolean;
+  deadlinePassedTriggered?: boolean;
 }
 
 export interface Habit {
@@ -26,6 +35,9 @@ export interface Habit {
   completed: boolean;
   streak: number;
   lastCompleted?: string; // ISO date
+  frequency?: 'daily' | 'weekly';
+  time?: string; // HH:mm format for daily routines
+  alarmTriggered?: boolean;
 }
 
 export interface HabitSection {
@@ -67,4 +79,16 @@ export interface InternetReport {
 export interface GuardianSettings {
   email: string;
   active: boolean;
+}
+
+export interface ProTutorStep {
+  title: string;
+  description: string;
+}
+
+export interface ProTutorSession {
+  topic: string;
+  scheme: ProTutorStep[];
+  currentStepIndex: number;
+  status: 'planning' | 'teaching' | 'testing' | 'completed';
 }

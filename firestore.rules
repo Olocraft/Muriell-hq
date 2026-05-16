@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: app_users
+    // Document ID: {userId} (Firebase Auth UID)
+    // Fields:
+    //   - tasks: list (optional) - Array of Task objects (max 100)
+    //   - stats: map (optional) - UserStats object
+    //   - habitSections: list (optional) - Array of HabitSection objects (max 20)
+    //   - routine: string (optional) - Monthly routine text (max 5000 chars)
+    //   - lastRefreshDate: string (optional) - YYYY-MM-DD format
+    //   - lastSeen: timestamp (optional) - Last activity time
+    //   - role: string (optional) - 'user' or 'admin'
+    //   - photoURL: string (optional) - Profile picture URL
+    //   - readingHistory: list (optional) - History of materials studied
+    //   - consistencyHistory: list (optional) - Daily consistency scores
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/app_users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "raphaelbinitiejr@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      let allowedFields = ['tasks', 'stats', 'habitSections', 'routine', 'lastRefreshDate', 'lastSeen', 'role', 'photoURL', 'readingHistory', 'consistencyHistory'];
+      return data.keys().hasOnly(allowedFields) &&
+             (!('tasks' in data) || (data.tasks is list && data.tasks.size() <= 100)) &&
+             (!('stats' in data) || (data.stats is map && data.stats.keys().size() <= 20)) &&
+             (!('habitSections' in data) || (data.habitSections is list && data.habitSections.size() <= 20)) &&
+             (!('routine' in data) || (data.routine == null || (data.routine is string && data.routine.size() <= 5000))) &&
+             (!('lastRefreshDate' in data) || (data.lastRefreshDate == null || (data.lastRefreshDate is string && data.lastRefreshDate.matches("^\\d{4}-\\d{2}-\\d{2}$")))) &&
+             (!('lastSeen' in data) || data.lastSeen == null || data.lastSeen is timestamp) &&
+             (!('role' in data) || (data.role in ['user', 'admin'])) &&
+             (!('photoURL' in data) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 1000000)) &&
+             (!('readingHistory' in data) || data.readingHistory == null || (data.readingHistory is list && data.readingHistory.size() <= 1000)) &&
+             (!('consistencyHistory' in data) || data.consistencyHistory == null || (data.consistencyHistory is list && data.consistencyHistory.size() <= 1000));
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /app_users/{userId} {
+      // Users can only read their own data. Verified check can be added if required.
+      // "no user that is verified can access another's data" implies strict ownership.
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Create: user can create their own doc, but cannot set themselves as admin
+      allow create: if isOwner(userId) && 
+                      isValidUser(request.resource.data) && 
+                      (request.resource.data.get('role', 'user') == 'user' || isAdmin());
+
+      // Update: user can update their own doc, but cannot change their role unless admin
+      allow update: if isOwner(userId) && 
+                      isValidUser(request.resource.data) && 
+                      (request.resource.data.get('role', resource.data.get('role', 'user')) == resource.data.get('role', 'user') || isAdmin());
+      
+      allow delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

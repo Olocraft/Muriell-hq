@@ -224,7 +224,7 @@ const InternetMonitor: React.FC<InternetMonitorProps> = ({ onViolation }) => {
         
         <div className="flex gap-4 relative z-10">
           {extensionStatus !== 'linked' ? (
-            <button onClick={handleInitializeExtension} className="px-10 py-5 bg-white text-black rounded-3xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-105 transition-all">Link Now</button>
+            <button onClick={handleInitializeExtension} className="px-10 py-5 bg-zinc-900 text-white rounded-3xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-105 transition-all">Link Now</button>
           ) : (
             <button onClick={isWatching ? stopVisualWatcher : startVisualWatcher} className={`px-10 py-5 rounded-3xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-105 transition-all ${isWatching ? 'bg-black text-red-500 border border-red-500/30' : 'bg-[#EF216A] text-white'}`}>
               {isWatching ? <><EyeOff className="w-4 h-4 inline mr-2" /> Stop Watch</> : <><Eye className="w-4 h-4 inline mr-2" /> Start Watch</>}
@@ -252,7 +252,7 @@ const InternetMonitor: React.FC<InternetMonitorProps> = ({ onViolation }) => {
               <video ref={videoRef} autoPlay muted playsInline className={`w-full h-full object-contain transition-opacity duration-1000 ${isWatching ? 'opacity-100' : 'opacity-0'}`} />
               {!isWatching && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center space-y-6">
-                  <Monitor className="w-16 h-16 text-gray-900" />
+                  <Monitor className="w-16 h-16 text-white" />
                   <p className="text-[10px] text-gray-700 font-black uppercase tracking-widest max-w-[200px]">Start the watch to track your focus.</p>
                 </div>
               )}

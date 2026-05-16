@@ -12,36 +12,42 @@ const Logo: React.FC<LogoProps> = ({
   className = "w-10 h-10", 
   expression = 'neutral' 
 }) => {
-  // Eye path logic based on the specific "sleeping/squint" style in the uploaded image
+  // Adjusted Y-coordinates to shift eyes down globally by ~8-10 units
   const getEyePaths = () => {
     switch (expression) {
       case 'proud':
         return (
           <>
-            <path d="M 33 42 Q 38 37 43 42" stroke="white" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
-            <path d="M 57 42 Q 62 37 67 42" stroke="white" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
+            <path d="M 33 50 Q 38 45 43 50" stroke="white" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
+            <path d="M 57 50 Q 62 45 67 50" stroke="white" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
           </>
         );
       case 'angry':
         return (
           <>
-            <path d="M 32 45 L 43 40" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
-            <path d="M 57 40 L 68 45" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+            <path d="M 32 53 L 43 48" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+            <path d="M 57 48 L 68 53" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
           </>
         );
       case 'annoyed':
         return (
           <>
-            <path d="M 32 43 L 43 43" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
-            <path d="M 57 43 L 68 43" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+            <path d="M 32 51 L 43 51" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+            <path d="M 57 51 L 68 51" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
           </>
         );
-      default: // neutral/uploaded style
+      case 'smirk':
         return (
           <>
-            {/* These match the specific semi-circle eyes in the user's image */}
-            <path d="M 32 40 C 32 46, 43 46, 43 40" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
-            <path d="M 57 40 C 57 46, 68 46, 68 40" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+            <path d="M 32 51 L 43 48" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+            <path d="M 57 48 C 57 54, 68 54, 68 48" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+          </>
+        );
+      default: // neutral/uploaded style shifted down
+        return (
+          <>
+            <path d="M 32 48 C 32 54, 43 54, 43 48" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+            <path d="M 57 48 C 57 54, 68 54, 68 48" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
           </>
         );
     }
@@ -54,7 +60,7 @@ const Logo: React.FC<LogoProps> = ({
       fill="none" 
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Ghost body - Exactly like the uploaded image: Dome top, slanted rectangular bottom */}
+      {/* Ghost body - Dome top peaks at y=25 */}
       <path
         d="M 25 55 
            C 25 25, 75 25, 75 55
@@ -69,7 +75,7 @@ const Logo: React.FC<LogoProps> = ({
         fill="#EF216A"
       />
       
-      {/* Eyes */}
+      {/* Eyes shifted down to ~y=48/50 to be more central in the face */}
       <g style={{ transition: 'all 0.2s ease-in-out' }}>
         {getEyePaths()}
       </g>

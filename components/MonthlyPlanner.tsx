@@ -18,7 +18,12 @@ import {
 import { generateRoutine, getPlanningGuidance } from '../services/geminiService';
 import { speakWithMuriell, startListening } from '../services/audioService';
 
-const MonthlyPlanner: React.FC = () => {
+interface MonthlyPlannerProps {
+  routine?: string | null;
+  onRoutineGenerated?: (routine: string | null) => void;
+}
+
+const MonthlyPlanner: React.FC<MonthlyPlannerProps> = ({ routine, onRoutineGenerated }) => {
   const [step, setStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAdviceLoading, setIsAdviceLoading] = useState(false);
@@ -26,7 +31,6 @@ const MonthlyPlanner: React.FC = () => {
   const [autoSpeak, setAutoSpeak] = useState(false);
   const [inputMethod, setInputMethod] = useState<'text' | 'voice'>('text');
   
-  const [routine, setRoutine] = useState<string | null>(null);
   const [advice, setAdvice] = useState<string>("What are we working on? Tell me your goals.");
   
   const [data, setData] = useState({
@@ -85,7 +89,7 @@ const MonthlyPlanner: React.FC = () => {
         `Main Goal: ${data.longTermGoals}. Monthly: ${data.shortTermGoals}. Bad Habits: ${data.weakHabits}`,
         `Time/Schedule: ${data.obligations}. Focus: ${data.intensity}`
       );
-      setRoutine(result);
+      if (onRoutineGenerated) onRoutineGenerated(result);
       speakWithMuriell("I've made a plan for you. Stick to it.");
     } catch (error) {
       console.error(error);
@@ -125,7 +129,7 @@ const MonthlyPlanner: React.FC = () => {
             {routine}
           </div>
           <button 
-            onClick={() => setRoutine(null)}
+            onClick={() => onRoutineGenerated && onRoutineGenerated(null)}
             className="w-full mt-8 py-5 bg-[#EF216A] rounded-2xl font-black uppercase tracking-[0.3em] text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_30px_rgba(239,33,106,0.4)]"
           >
             Change Plan

@@ -1,0 +1,118 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and state",
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "description": "List of user tasks",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "description": { "type": "string" },
+              "type": { "type": "string", "enum": ["focus", "habit", "discipline"] },
+              "status": { "type": "string", "enum": ["pending", "completed", "overdue", "missed"] },
+              "stakeAmount": { "type": "number" },
+              "deadline": { "type": "string", "format": "date-time" },
+              "outcome": { "type": "string" }
+            }
+          }
+        },
+        "stats": {
+          "type": "object",
+          "description": "User discipline statistics",
+          "properties": {
+            "xp": { "type": "number" },
+            "level": { "type": "number" },
+            "streak": { "type": "number" },
+            "rageMeter": { "type": "number" },
+            "shamePoints": { "type": "number" },
+            "disciplineScore": { "type": "number" },
+            "consistencyScore": { "type": "number" },
+            "roastIntensity": { "type": "string", "enum": ["Mild", "Standard", "Aggressive"] }
+          }
+        },
+        "habitSections": {
+          "type": "array",
+          "description": "User habit sections",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "icon": { "type": "string" },
+              "habits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "title": { "type": "string" },
+                    "completed": { "type": "boolean" },
+                    "streak": { "type": "number" },
+                    "lastCompleted": { "type": "string" },
+                    "time": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "routine": {
+          "type": "string",
+          "description": "User monthly routine"
+        },
+        "lastRefreshDate": {
+          "type": "string",
+          "description": "Last date tasks were refreshed",
+          "format": "date"
+        },
+        "lastSeen": {
+          "type": "string",
+          "description": "Last time the user was active",
+          "format": "date-time"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "admin"]
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "User profile picture URL"
+        },
+        "readingHistory": {
+          "type": "array",
+          "description": "History of materials studied",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "timestamp": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "consistencyHistory": {
+          "type": "array",
+          "description": "Daily consistency scores",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string", "format": "date" },
+              "score": { "type": "number" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User data document"
+    }
+  }
+}
