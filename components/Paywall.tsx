@@ -1,9 +1,10 @@
 
-import React, { useEffect, useState } from 'react';
-import { Package, Offerings } from '@revenuecat/purchases-js';
-import { billing } from '../services/billingService';
+import React, { useState } from 'react';
+import { usePaystackPayment } from 'react-paystack';
 import { Zap, Crown, Ghost, Check, X, Loader2, Star, ShieldCheck } from 'lucide-react';
 import Logo from './Logo';
+import { auth } from '../services/firebase';
+import { taskService } from '../services/taskService';
 
 interface PaywallProps {
   onClose: () => void;
@@ -11,39 +12,47 @@ interface PaywallProps {
 }
 
 const Paywall: React.FC<PaywallProps> = ({ onClose, onSuccess }) => {
-  const [offerings, setOfferings] = useState<Offerings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [purchasing, setPurchasing] = useState<string | null>(null);
-  const [passcode, setPasscode] = useState('');
-  const [passcodeApplied, setPasscodeApplied] = useState(false);
-  const [passcodeError, setPasscodeError] = useState(false);
-
-  useEffect(() => {
-    const load = async () => {
-      const data = await billing.getOfferings();
-      setOfferings(data);
-      setLoading(false);
-    };
-    load();
-  }, []);
-
-  const handlePurchase = async (pkg: Package) => {
-    setPurchasing(pkg.identifier);
-    const success = await billing.purchase(pkg);
-    if (success) {
-      onSuccess();
+  const [purchasing, setPurchasing] = useState(false);
+  
+  // Paystack Configuration
+  const config = {
+    reference: (new Date()).getTime().toString(),
+    email: auth.currentUser?.email || "raphaelbinitiejr@gmail.com",
+    amount: 500000, // 5000 NGN in kobo
+    publicKey: 'pk_test_fc8adf24fe31c56a330acdad1864fad5e08156d1',
+    metadata: {
+      custom_fields: [
+        {
+          display_name: "User ID",
+          variable_name: "user_id",
+          value: auth.currentUser?.uid || 'unknown'
+        },
+        {
+          display_name: "Destination Account",
+          variable_name: "destination",
+          value: "9015383694 Opay - Binitie Enaholo Raphael"
+        }
+      ]
     }
-    setPurchasing(null);
   };
 
-  const handleApplyPasscode = () => {
-    if (passcode === 'MURIELL29#') {
-      setPasscodeApplied(true);
-      setPasscodeError(false);
-    } else {
-      setPasscodeError(true);
-      setPasscodeApplied(false);
-    }
+  const initializePayment = usePaystackPayment(config);
+
+  const onSuccessPayment = (reference: any) => {
+    // Save locally or remote that the user is a pro user. In a real app we'd verify the trans reference via our backend!
+    console.log("Payment successful", reference);
+    setPurchasing(false);
+    onSuccess(); // Grants Pro Access locally
+  };
+
+  const onClosePayment = () => {
+    console.log("Payment dialog closed.");
+    setPurchasing(false);
+  };
+
+  const handlePurchase = () => {
+    setPurchasing(true);
+    initializePayment({onSuccess: onSuccessPayment, onClose: onClosePayment});
   };
 
   return (
@@ -73,97 +82,43 @@ const Paywall: React.FC<PaywallProps> = ({ onClose, onSuccess }) => {
         <div className="md:w-1/2 p-10 md:p-16 flex flex-col items-center justify-center bg-white/[0.02] relative">
           <button onClick={onClose} className="absolute top-8 right-8 p-3 glass rounded-full text-gray-500 hover:text-white transition-all z-10"><X className="w-5 h-5" /></button>
           
-          {loading ? (
-            <div className="flex flex-col items-center gap-4">
-              <Loader2 className="w-10 h-10 text-[#EF216A] animate-spin" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Retrieving Offers...</p>
-            </div>
-          ) : (
             <div className="w-full space-y-6">
-              {/* Passcode Section */}
-              <div className="space-y-3">
-                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1 px-1">Redeem Protocol Code</div>
-                <div className="flex gap-2">
-                  <input 
-                    type="text"
-                    value={passcode}
-                    onChange={(e) => setPasscode(e.target.value)}
-                    placeholder="Enter Passcode..."
-                    disabled={passcodeApplied}
-                    className={`flex-1 bg-black/40 border-2 rounded-2xl px-5 py-3 text-xs font-black uppercase tracking-widest focus:outline-none transition-all ${
-                      passcodeApplied ? 'border-green-500 text-green-500' : 
-                      passcodeError ? 'border-red-500 text-red-500' : 'border-white/5 focus:border-[#EF216A]'
-                    }`}
-                  />
-                  {!passcodeApplied && (
-                    <button 
-                      onClick={handleApplyPasscode}
-                      className="px-6 py-3 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-[9px] hover:bg-gray-200 transition-all"
-                    >
-                      Apply
-                    </button>
-                  )}
-                </div>
-                {passcodeApplied && (
-                  <div className="flex items-center gap-2 text-[10px] font-black text-green-500 uppercase tracking-widest px-1 animate-in slide-in-from-top-2">
-                    <ShieldCheck className="w-3 h-3" /> 2-Month Free Trial Activated
-                  </div>
-                )}
-                {passcodeError && (
-                  <div className="text-[10px] font-black text-red-500 uppercase tracking-widest px-1 animate-in slide-in-from-top-2">
-                    Invalid Protocol Code
-                  </div>
-                )}
-              </div>
-
-              <div className="h-px bg-white/5 w-full"></div>
-
               <div className="space-y-4">
-                {offerings?.current?.availablePackages.map((pkg) => (
                   <button 
-                    key={pkg.identifier}
-                    onClick={() => handlePurchase(pkg)}
-                    disabled={!!purchasing}
-                    className={`w-full p-6 glass border-2 rounded-3xl flex items-center justify-between group transition-all hover:scale-[1.02] active:scale-95 ${
-                      passcodeApplied ? 'border-green-500/30 hover:border-green-500/60' : 'border-white/5 hover:border-[#EF216A]/50'
-                    }`}
+                    onClick={handlePurchase}
+                    disabled={purchasing}
+                    className={`w-full p-6 glass border-2 rounded-3xl flex items-center justify-between group transition-all hover:scale-[1.02] active:scale-95 border-emerald-500/30 hover:border-[#EF216A]/50`}
                   >
                     <div className="text-left">
                       <div className="text-[9px] font-black uppercase tracking-[0.2em] text-[#EF216A] mb-1">
-                        {passcodeApplied ? 'SPECIAL OFFER' : (pkg.packageType === 'ANNUAL' ? 'BEST VALUE' : pkg.packageType)}
+                         LIFETIME ACCESS
                       </div>
                       <div className="text-xl font-black italic uppercase text-white tracking-tight">
-                        {pkg.product.title.split('(')[0]}
+                        Muriell Pro (Paystack)
                       </div>
-                      {passcodeApplied && (
-                        <div className="text-[8px] font-black text-green-500 uppercase tracking-widest mt-1">
-                          Includes 2 Months Free
-                        </div>
-                      )}
+                      <div className="text-[8px] font-black text-gray-500 uppercase tracking-widest mt-1">
+                        Transfers to Opay: 9015383694
+                      </div>
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-black italic text-white tracking-tighter">
-                        {passcodeApplied ? '$0.00' : pkg.product.priceString}
+                        ₦5,000
                       </div>
-                      {purchasing === pkg.identifier ? (
+                      {purchasing ? (
                         <Loader2 className="w-4 h-4 text-[#EF216A] animate-spin ml-auto" />
                       ) : (
-                        <div className="text-[8px] font-black uppercase text-gray-600 tracking-widest">
-                          {passcodeApplied ? 'Start Trial' : 'Select Plan'}
+                        <div className="text-[8px] font-black uppercase text-emerald-500 tracking-widest">
+                          Proceed to Pay
                         </div>
                       )}
                     </div>
                   </button>
-                ))}
               </div>
               
               <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest text-center mt-6">
-                {passcodeApplied 
-                  ? "Card required for verification. You won't be charged for 60 days."
-                  : "Secure transaction via RevenueCat. Cancel anytime."}
+                Secure transaction via Paystack. Funds sent to Binitie Enaholo Raphael.
               </p>
             </div>
-          )}
         </div>
       </div>
     </div>

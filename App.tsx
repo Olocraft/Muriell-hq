@@ -99,7 +99,14 @@ const App: React.FC = () => {
 
   const [tasks, setTasks] = useState<Task[]>(() => {
     const saved = localStorage.getItem('muriell_tasks');
-    return saved ? JSON.parse(saved) : [
+    if (saved) {
+      const parsed: Task[] = JSON.parse(saved);
+      return parsed.map(t => ({
+        ...t,
+        deadline: t.deadline || new Date(Date.now() + 3600000).toISOString()
+      }));
+    }
+    return [
       {
         id: '1',
         title: 'Study: OS Architecture',
@@ -165,7 +172,10 @@ const App: React.FC = () => {
           
           if (userData.tasks) {
             const { tasks: refreshedTasks, habits: refreshedHabits } = await taskService.checkDailyRefresh(firebaseUser.uid, userData.tasks, userData.habitSections || habitSections);
-            setTasks(refreshedTasks);
+            setTasks(refreshedTasks.map(t => ({
+              ...t,
+              deadline: t.deadline || new Date(Date.now() + 3600000).toISOString()
+            })));
             setHabitSections(refreshedHabits);
             localStorage.setItem('muriell_last_refresh', new Date().toISOString().split('T')[0]);
           }
@@ -305,7 +315,10 @@ const App: React.FC = () => {
       const lastRefresh = localStorage.getItem('muriell_last_refresh');
       if (lastRefresh !== today && user) {
         const { tasks: refreshedTasks, habits: refreshedHabits } = await taskService.checkDailyRefresh(user.uid, tasks, habitSections);
-        setTasks(refreshedTasks);
+        setTasks(refreshedTasks.map(t => ({
+          ...t,
+          deadline: t.deadline || new Date(Date.now() + 3600000).toISOString()
+        })));
         setHabitSections(refreshedHabits);
         localStorage.setItem('muriell_last_refresh', today);
       }
