@@ -35,6 +35,7 @@ import Profile from './components/Profile';
 import Logo from './components/Logo';
 import { UserStats, Task, MuriellMood, HabitSection, Habit } from './types';
 import { speakWithMuriell } from './services/audioService';
+import { signInWithGoogle, getAccessToken, fetchGoogleTasks } from './services/googleTasksApi';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -599,6 +600,48 @@ const App: React.FC = () => {
     speakWithMuriell(`Protocol ${task.title} has been logged. Do not disappoint me.`);
   };
 
+  const [isSyncingTasks, setIsSyncingTasks] = useState(false);
+
+  const handleSyncGoogleTasks = async () => {
+    setIsSyncingTasks(true);
+    try {
+      let token = getAccessToken();
+      if (!token) {
+        const result = await signInWithGoogle();
+        if (result) {
+          token = result.accessToken;
+        } else {
+          throw new Error("Failed to get Google Tasks token.");
+        }
+      }
+      const gTasks = await fetchGoogleTasks(token);
+      
+      const newTasks: Task[] = gTasks.map((gt: any) => ({
+        id: `gtask_${gt.id}`,
+        title: gt.title || 'Untitled Task',
+        description: gt.notes || 'Imported from Google Tasks.',
+        type: 'focus',
+        status: gt.status === 'completed' ? 'completed' : 'pending',
+        stakeAmount: 10,
+        deadline: gt.due || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        outcome: 'Google Tasks Sync'
+      }));
+
+      // Filter out existing ones or just add them if they don't exist
+      setTasks(prev => {
+        const existingIds = new Set(prev.map(t => t.id));
+        const filteredNew = newTasks.filter(t => !existingIds.has(t.id));
+        return [...filteredNew, ...prev];
+      });
+      speakWithMuriell("External protocols imported. The list grows longer.");
+    } catch (err: any) {
+      console.error("Task sync error:", err);
+      alert("Failed to sync Google Tasks: " + err.message);
+    } finally {
+      setIsSyncingTasks(false);
+    }
+  };
+
   const handleViolation = () => {
     setStats(prev => ({
       ...prev,
@@ -783,6 +826,7 @@ const App: React.FC = () => {
               onCompleteTask={handleCompleteTask} 
               onSnooze={handleSnoozeAlarm}
               isAlarming={isAlarming}
+              onSyncGoogleTasks={handleSyncGoogleTasks}
             />
           )}
           {activeTab === 'habits' && (

@@ -11,7 +11,8 @@ import {
   Zap,
   ChevronDown,
   ChevronUp,
-  Info
+  Info,
+  RefreshCcw
 } from 'lucide-react';
 import { UserStats, Task, HabitSection, MuriellMood } from '../types';
 import Logo from './Logo';
@@ -23,9 +24,10 @@ interface DashboardProps {
   onCompleteTask: (id: string) => void;
   onSnooze?: () => void;
   isAlarming?: boolean;
+  onSyncGoogleTasks?: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ stats, tasks, habits, onCompleteTask, onSnooze, isAlarming }) => {
+const Dashboard: React.FC<DashboardProps> = ({ stats, tasks, habits, onCompleteTask, onSnooze, isAlarming, onSyncGoogleTasks }) => {
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
   const [activeStatDetail, setActiveStatDetail] = useState<string | null>(null);
 
@@ -155,9 +157,19 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tasks, habits, onCompleteT
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
         <div id="task-list" className="lg:col-span-8 space-y-6">
           <div className="flex items-center justify-between px-2">
-            <h2 className="text-xl md:text-2xl font-black italic uppercase tracking-tighter flex items-center gap-2">
-              <Activity className="w-5 h-5 text-[#EF216A]" /> Active Protocols
-            </h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl md:text-2xl font-black italic uppercase tracking-tighter flex items-center gap-2">
+                <Activity className="w-5 h-5 text-[#EF216A]" /> Active Protocols
+              </h2>
+              {onSyncGoogleTasks && (
+                <button 
+                  onClick={onSyncGoogleTasks}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-[#EF216A]/20 text-[#EF216A] text-[9px] font-black uppercase tracking-widest rounded-lg transition-colors border border-white/5 hover:border-[#EF216A]/50"
+                >
+                  <RefreshCcw className="w-3 h-3" /> Sync Tasks
+                </button>
+              )}
+            </div>
             <span className="text-[9px] font-black uppercase text-gray-500 tracking-[0.2em] bg-white/5 px-3 py-1.5 rounded-full">
               {pendingTasks.length} Active
             </span>

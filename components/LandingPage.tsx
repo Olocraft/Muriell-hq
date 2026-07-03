@@ -30,6 +30,7 @@ import {
   User as FirebaseUser
 } from 'firebase/auth';
 import { auth, googleProvider } from '../services/firebase';
+import { signInWithGoogle } from '../services/googleTasksApi';
 import Logo from './Logo';
 
 interface LandingPageProps {
@@ -132,7 +133,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ initialUser }) => {
   const handleGoogleAuth = async () => {
     setError(null);
     try {
-      await signInWithPopup(auth, googleProvider);
+      await signInWithGoogle();
     } catch (err: any) {
       const errorCode = err.code || "";
       const errorMessage = err.message || "";
